@@ -11,7 +11,6 @@ import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.HttpProxy;
 import org.eclipse.jetty.client.api.Authentication;
 import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.util.B64Code;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -75,11 +74,11 @@ public class ClientConfigurator {
         }
         // AGENT
         HttpClient client = cc.getClient().getHttpClient();
-        client.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1"));
+        //client.setUserAgentField(new HttpField(HttpHeader.USER_AGENT, "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1"));
         // PROXY
         String[] hostPort;
         if (StringUtils.isEmpty(proxyHostPort) || (hostPort = proxyHostPort.split(":")).length < 2) {
-            LOG.error("wrong proxy format: should be proxyHost:proxyPort ");
+            LOG.error("wrong proxy format: should be proxyHost:proxyPort ... will be ignored");
             return wsc;
         }
         HttpProxy proxy = new HttpProxy(hostPort[0], Integer.parseInt(hostPort[1]));

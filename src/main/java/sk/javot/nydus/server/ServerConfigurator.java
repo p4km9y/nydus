@@ -3,6 +3,7 @@ package sk.javot.nydus.server;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 import sk.javot.nydus.ServerMode;
@@ -68,8 +68,6 @@ public class ServerConfigurator {
     @Bean
     @Conditional(ServerMode.class)
     public EmbeddedServletContainerCustomizer embeddedServletContainerCustomizer() throws Exception {
-        final String absoluteKeystoreFile = ResourceUtils.getFile(keystore).getAbsolutePath();
-        LOG.debug("keystore file: {}", absoluteKeystoreFile);
         return new EmbeddedServletContainerCustomizer() {
 
             @Override
@@ -81,7 +79,13 @@ public class ServerConfigurator {
                     @Override
                     public void customize(Server server) {
                         SslContextFactory sslContextFactory = new SslContextFactory();
-                        sslContextFactory.setKeyStorePath(absoluteKeystoreFile);
+//                        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+                        try {
+                            sslContextFactory.setKeyStoreResource(Resource.newClassPathResource(keystore));
+                        } catch (Exception e) {
+                            throw new IllegalStateException(e);
+                        }
+                        LOG.debug("keystore file: {}", sslContextFactory.getKeyStoreResource());
                         sslContextFactory.setKeyStorePassword(keystorePassword);
 
                         ServerConnector sslConnector = new ServerConnector(server, sslContextFactory);

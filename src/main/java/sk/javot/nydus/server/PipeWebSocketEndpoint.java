@@ -85,7 +85,9 @@ public class PipeWebSocketEndpoint {
     public void onMessage(byte[] msg, Session session) {
         Optional<IoSession> os = Optional.of((IoSession) session.getUserProperties().get(IoSession.class.getName()));
         os.ifPresent(ios -> {
-            LOG.error("receive: {}", Arrays.asList(msg));
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("receive: {}", Arrays.asList(msg));
+            }
             ios.write(IoBuffer.wrap(msg));
         });
     }
