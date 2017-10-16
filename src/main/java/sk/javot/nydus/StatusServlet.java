@@ -1,4 +1,4 @@
-package sk.javot.nydus.server;
+package sk.javot.nydus;
 
 import java.io.IOException;
 

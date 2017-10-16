@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Optional;
 
-import javax.websocket.ContainerProvider;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
@@ -18,7 +17,6 @@ import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.stereotype.Component;
 
@@ -27,15 +25,17 @@ public class ForwarderListener implements SmartLifecycle {
 
     private static final Logger LOG = LoggerFactory.getLogger(Forwarder.class);
 
-    @Autowired
-    Forwarder forwarder;
-
     Integer forwarderPort;
+    Forwarder forwarder;
+    WebSocketContainer container;
+
     volatile IoAcceptor acceptor;
     
 
-    public ForwarderListener(Integer forwarderPort) {
-        this.forwarderPort = forwarderPort;
+    public ForwarderListener(Integer listeningPort, Forwarder forwarder, WebSocketContainer container) {
+        this.forwarderPort = listeningPort;
+        this.container = container;
+        this.forwarder = forwarder;
     }
 
 
@@ -51,8 +51,7 @@ public class ForwarderListener implements SmartLifecycle {
 
                         @Override
                         public void sessionOpened(IoSession ios) throws Exception {
-                            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-                            Session session = container.connectToServer(forwarder, forwarder.destination());
+                            Session session = container.connectToServer(forwarder, forwarder.destination()); // TODO spring way somehow?
                             session.getUserProperties().put(IoSession.class.getName(), ios);
                             ios.setAttribute(Session.class, session);
                         }
