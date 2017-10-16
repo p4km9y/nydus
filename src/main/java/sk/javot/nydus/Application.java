@@ -15,7 +15,8 @@ import sk.javot.nydus.client.ClientConfigurator;
 import sk.javot.nydus.server.ServerConfigurator;
 
 /**
- * keytool -genkey -v -alias jetty -keyalg RSA -keysize 2048 -keystore keystore.jks -validity 3650 -providername SUN http://www.websocket.org/echo.html
+ * keytool -genkey -v -alias jetty -keyalg RSA -keysize 2048 -keystore keystore.jks -validity 3650 -providername SUN
+ * 
  * https://spring.io/blog/2013/05/23/spring-framework-4-0-m1-websocket-support org.eclipse.jetty.websocket.jsr356.ssl-trust-all=true
  * 
  * --type=client --pipeUrl='wss://10.230.18.8:8443/pipe' --proxyHostPort=localhost:6666 --proxyUserPwd=user:pwd --forwarderPort=8888
