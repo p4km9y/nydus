@@ -1,9 +1,11 @@
 package sk.javot.nydus.server;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.RemoteEndpoint;
@@ -17,22 +19,27 @@ import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
-@ServerEndpoint("/pipe")
+@ServerEndpoint(
+    value="/pipe",
+    configurator = SpringConfigurator.class
+)
 public class PipeWebSocketEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(PipeWebSocketEndpoint.class);
 
+    String targetHostPort; // localhost:22
     Map<Session, IoSession> sessions = new HashMap<>();
 
-//	@OnMessage
-//	public void handleMessage(Session session, String message) throws IOException {
-//		session.getBasicRemote()
-//				.sendText("Reversed: " + new StringBuilder(message).reverse());
-//	}
+
+    public PipeWebSocketEndpoint(String targetHostPort) { // not able to use such constructors without configurator
+        this.targetHostPort = targetHostPort;
+    }
+
 
     /**
-     *     Decorates the function associated with handling a connection open event
+     * Decorates the function associated with handling a connection open event
      */
     @OnOpen
     public void open(final Session session) {
@@ -41,11 +48,10 @@ public class PipeWebSocketEndpoint {
         connector.getFilterChain().addLast("logger", new LoggingFilter());
         connector.setHandler(new IoHandlerAdapter() {
 
-
             @Override
             public void sessionOpened(IoSession ios) throws Exception {
-                //ios.setAttribute("wss", session);
-                //ios.setAttribute("connector", connector);
+                // ios.setAttribute("wss", session);
+                // ios.setAttribute("connector", connector);
                 sessions.put(session, ios);
             }
 
@@ -56,7 +62,7 @@ public class PipeWebSocketEndpoint {
                 session.close();
             }
 
-            
+
             @Override
             public void messageReceived(IoSession ios, Object message) throws Exception {
                 IoBuffer recv = (IoBuffer) message;
@@ -64,35 +70,38 @@ public class PipeWebSocketEndpoint {
                 remote.sendBinary(recv.buf());
             }
         });
-        
-        connector.connect(new InetSocketAddress("localhost", 2222));
+        String[] hostPort;
+        if (StringUtils.isEmpty(targetHostPort) || (hostPort = targetHostPort.split(":")).length < 2) {
+            LOG.error("wrong target format: should be targetHost:targetPort ");
+            return;
+        }
+        LOG.debug("connecting to: {}", Arrays.asList(hostPort));
+        connector.connect(new InetSocketAddress(hostPort[0], Integer.parseInt(hostPort[1])));
     }
 
 
-    //@OnMessage: Decorates the function associated with handling an event on message received
-    //@OnError: Decorates the function associated with handling a connection error event
-    //@OnClose: Decorates the function associated with handling an event on connection close
+    // @OnMessage: Decorates the function associated with handling an event on message received
+    // @OnError: Decorates the function associated with handling a connection error event
+    // @OnClose: Decorates the function associated with handling an event on connection close
 
-	@OnMessage
-	public void onMessage(byte[] msg, Session session) {
-	    IoSession ios = sessions.get(session);
-	    if (ios == null) {
-	        LOG.error("destination is not connected");
-	        return;
-	    }
-	    LOG.error("pajp bajts in: " + new String(msg));
-	    ios.write(IoBuffer.wrap(msg));
-	}
+    @OnMessage
+    public void onMessage(byte[] msg, Session session) {
+        IoSession ios = sessions.get(session);
+        if (ios == null) {
+            LOG.error("destination is not connected");
+            return;
+        }
+        LOG.debug("message: {}", Arrays.asList(msg));
+        ios.write(IoBuffer.wrap(msg));
+    }
 
 
-//    @OnMessage
-//    public void onMessage(String msg, Session session) {
-//        IoSession ios = sessions.get(session);
-//        if (ios == null) {
-//            LOG.error("destination is not connected");
-//            return;
-//        }
-//        LOG.error("pajp string in: " + msg);
-//        ios.write(IoBuffer.wrap(msg.getBytes()));
-//    }
+    @OnClose
+    public void onClose(Session session) {
+        IoSession ios = sessions.get(session);
+        if (ios == null) {
+            return;
+        }
+        ios.closeNow();
+    }
 }
