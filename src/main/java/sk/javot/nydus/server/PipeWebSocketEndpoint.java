@@ -2,8 +2,7 @@ package sk.javot.nydus.server;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -30,7 +29,6 @@ public class PipeWebSocketEndpoint {
     private static final Logger LOG = LoggerFactory.getLogger(PipeWebSocketEndpoint.class);
 
     String targetHostPort; // localhost:22
-    Map<Session, IoSession> sessions = new HashMap<>();
 
 
     public PipeWebSocketEndpoint(String targetHostPort) { // not able to use such constructors without configurator
@@ -48,11 +46,10 @@ public class PipeWebSocketEndpoint {
         connector.getFilterChain().addLast("logger", new LoggingFilter());
         connector.setHandler(new IoHandlerAdapter() {
 
+
             @Override
             public void sessionOpened(IoSession ios) throws Exception {
-                // ios.setAttribute("wss", session);
-                // ios.setAttribute("connector", connector);
-                sessions.put(session, ios);
+                session.getUserProperties().put(IoSession.class.getName(), ios);
             }
 
 
@@ -86,22 +83,20 @@ public class PipeWebSocketEndpoint {
 
     @OnMessage
     public void onMessage(byte[] msg, Session session) {
-        IoSession ios = sessions.get(session);
-        if (ios == null) {
-            LOG.error("destination is not connected");
-            return;
-        }
-        LOG.debug("message: {}", Arrays.asList(msg));
-        ios.write(IoBuffer.wrap(msg));
+        Optional<IoSession> os = Optional.of((IoSession) session.getUserProperties().get(IoSession.class.getName()));
+        os.ifPresent(ios -> {
+            LOG.error("receive: {}", Arrays.asList(msg));
+            ios.write(IoBuffer.wrap(msg));
+        });
     }
 
 
     @OnClose
     public void onClose(Session session) {
-        IoSession ios = sessions.get(session);
-        if (ios == null) {
-            return;
-        }
-        ios.closeNow();
+        Optional<IoSession> os = Optional.of((IoSession) session.getUserProperties().get(IoSession.class.getName()));
+        os.ifPresent(ios -> {
+            LOG.info("close called: {}", session);
+            ios.closeNow();
+        });
     }
 }
