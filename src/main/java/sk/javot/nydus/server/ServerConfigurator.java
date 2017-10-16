@@ -79,7 +79,6 @@ public class ServerConfigurator {
                     @Override
                     public void customize(Server server) {
                         SslContextFactory sslContextFactory = new SslContextFactory();
-//                        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
                         try {
                             sslContextFactory.setKeyStoreResource(Resource.newClassPathResource(keystore));
                         } catch (Exception e) {

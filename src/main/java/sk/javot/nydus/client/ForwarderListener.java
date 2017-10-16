@@ -59,7 +59,7 @@ public class ForwarderListener implements SmartLifecycle {
 
                         @Override
                         public void sessionClosed(IoSession ios) throws Exception {
-                            Optional<Session> os = Optional.of((Session) ios.getAttribute(Session.class));
+                            Optional<Session> os = Optional.ofNullable((Session) ios.getAttribute(Session.class));
                             os.ifPresent(session -> {
                                 try {
                                     session.close();
@@ -73,7 +73,7 @@ public class ForwarderListener implements SmartLifecycle {
 
                         @Override
                         public void messageReceived(IoSession ios, Object message) throws Exception {
-                            Optional<Session> os = Optional.of((Session) ios.getAttribute(Session.class));
+                            Optional<Session> os = Optional.ofNullable((Session) ios.getAttribute(Session.class));
                             os.ifPresent(session -> {
                                 LOG.debug("received: {} ", message);
                                 IoBuffer recv = (IoBuffer) message;

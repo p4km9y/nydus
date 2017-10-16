@@ -30,7 +30,7 @@ public class Forwarder {
 
     @OnMessage
     public void onMessage(byte[] msg, Session session) {
-        Optional<IoSession> os = Optional.of((IoSession) session.getUserProperties().get(IoSession.class.getName()));
+        Optional<IoSession> os = Optional.ofNullable((IoSession) session.getUserProperties().get(IoSession.class.getName()));
         os.ifPresent(ios -> {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("send: {}", Arrays.asList(msg));
@@ -42,7 +42,7 @@ public class Forwarder {
 
     @OnClose
     public void onClose(Session session) {
-        Optional<IoSession> os = Optional.of((IoSession) session.getUserProperties().get(IoSession.class.getName()));
+        Optional<IoSession> os = Optional.ofNullable((IoSession) session.getUserProperties().get(IoSession.class.getName()));
         os.ifPresent(ios -> {
             LOG.info("closing mina session: {}", ios);
             ios.closeNow();

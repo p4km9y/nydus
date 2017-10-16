@@ -4,6 +4,8 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Optional;
 
+import javax.websocket.CloseReason;
+import javax.websocket.CloseReason.CloseCodes;
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
@@ -66,6 +68,13 @@ public class PipeWebSocketEndpoint {
                 RemoteEndpoint.Async remote = session.getAsyncRemote();
                 remote.sendBinary(recv.buf());
             }
+
+
+            @Override
+            public void exceptionCaught(IoSession ios, Throwable cause) throws Exception {
+                session.close(new CloseReason(CloseCodes.TRY_AGAIN_LATER, "destination exception: " + cause.getMessage()));
+                LOG.warn("target connection exception occured: ws session closed", cause);
+            }
         });
         String[] hostPort;
         if (StringUtils.isEmpty(targetHostPort) || (hostPort = targetHostPort.split(":")).length < 2) {
@@ -83,7 +92,7 @@ public class PipeWebSocketEndpoint {
 
     @OnMessage
     public void onMessage(byte[] msg, Session session) {
-        Optional<IoSession> os = Optional.of((IoSession) session.getUserProperties().get(IoSession.class.getName()));
+        Optional<IoSession> os = Optional.ofNullable((IoSession) session.getUserProperties().get(IoSession.class.getName()));
         os.ifPresent(ios -> {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("receive: {}", Arrays.asList(msg));
@@ -95,7 +104,7 @@ public class PipeWebSocketEndpoint {
 
     @OnClose
     public void onClose(Session session) {
-        Optional<IoSession> os = Optional.of((IoSession) session.getUserProperties().get(IoSession.class.getName()));
+        Optional<IoSession> os = Optional.ofNullable((IoSession) session.getUserProperties().get(IoSession.class.getName()));
         os.ifPresent(ios -> {
             LOG.info("close called: {}", session);
             ios.closeNow();
