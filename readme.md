@@ -11,7 +11,8 @@ target$ java -jar nydus-1.0-SNAPSHOT.jar --type=client --pipeUrl=wss://10.230.18
 ````sh
 keytool -genkey -v -alias jetty -keyalg RSA -keysize 2048 -keystore keystore.jks -validity 3650 -providername SUN
 ````
-### put keystore.jks to classpath
+### keystore.jks 
+put keystore on classpath or src/main/resources during build
 # example
 ```sh
 target$ java -jar nydus-1.0-SNAPSHOT.jar --type=server --targetHostPort=localhost:2222 --pipeListenerPort=8443
