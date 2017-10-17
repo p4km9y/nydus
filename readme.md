@@ -28,9 +28,9 @@ netcat localhost 8888
   * ### run
     ##### server
     ```sh
-    docker run --rm p4km9y/nydus --targetHostPort=localhost:22
+    docker run -d --name nydus --rm -p 443:8443 p4km9y/nydus --targetHostPort=10.132.0.2:22 --pipeListenerPort=8443
     ````
     ##### client
     ```sh
-    docker run --rm p4km9y/nydus --type=client --pipeUrl=wss://localhost:8443/pipe
+    docker run --rm -p 8888:8888 p4km9y/nydus --type=client --pipeUrl=wss://10.132.0.2:443/pipe
     ````
