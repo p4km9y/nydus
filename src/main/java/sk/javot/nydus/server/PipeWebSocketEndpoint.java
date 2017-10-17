@@ -33,7 +33,10 @@ public class PipeWebSocketEndpoint {
     String targetHostPort; // localhost:22
 
 
-    public PipeWebSocketEndpoint(String targetHostPort) { // not able to use such constructors without configurator
+    public PipeWebSocketEndpoint(String targetHostPort) { // not able to use such constructors without spring configurator
+        if (StringUtils.isEmpty(targetHostPort)) {
+            throw new IllegalArgumentException("pipe target (--targetHostPort=$host:$port) cannot be empty");
+        }
         this.targetHostPort = targetHostPort;
     }
 

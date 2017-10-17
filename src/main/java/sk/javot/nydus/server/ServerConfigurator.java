@@ -37,12 +37,12 @@ public class ServerConfigurator {
     private String keystorePassword;
 
 
-    @Value("${pipeListenerPort}")
-    private String pipeListenerPort; // 8443
+    @Value("${pipeListenerPort:8443}")
+    private String pipeListenerPort;
 
 
-    @Value("${targetHostPort}")
-    private String targetHostPort; // localhost:22
+    @Value("${targetHostPort:#{null}}")
+    private String targetHostPort; // e.g. localhost:22
 
 
     @Bean

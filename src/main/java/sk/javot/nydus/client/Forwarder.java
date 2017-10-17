@@ -14,6 +14,7 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 @ClientEndpoint
 public class Forwarder {
@@ -24,6 +25,9 @@ public class Forwarder {
 
 
     public Forwarder(String destination) {
+        if (StringUtils.isEmpty(destination)) {
+            throw new IllegalArgumentException("forwarder destination (--pipeUrl=wss://$host:$port/pipe) cannot be empty");
+        }
         this.destination = destination;
     }
 

@@ -33,17 +33,17 @@ public class ClientConfigurator {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientConfigurator.class);
 
-    @Value("${pipeUrl}")
-    private String pipeUrl; // wss://localhost:8443/pipe
+    @Value("${pipeUrl:#{null}}")
+    private String pipeUrl; // e.g. wss://localhost:8443/pipe
 
-    @Value("${forwarderPort}")
-    private String forwarderPort; // 8888
+    @Value("${forwarderPort:8888}")
+    private String forwarderPort;
 
-    @Value("${proxyHostPort}")
-    private String proxyHostPort; // proxy:6666
+    @Value("${proxyHostPort:#{null}}")
+    private String proxyHostPort; // e.g. proxy:6666
 
-    @Value("${proxyUserPwd}")
-    private String proxyUserPwd; // username:password
+    @Value("${proxyUserPwd:#{null}}")
+    private String proxyUserPwd; // e.g. username:password
 
 
     @Bean

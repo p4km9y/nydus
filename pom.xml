@@ -60,4 +60,58 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.22.1</version>
+                        <configuration>
+                            <pushRegistry>registry.hub.docker.com</pushRegistry>
+                            <images>
+                                <image>
+                                    <name>p4km9y/nydus</name>
+                                    <build>
+                                        <dockerFileDir>.</dockerFileDir>
+                                        <tags>
+                                            <tag>latest</tag>
+                                            <tag>${project.version}</tag>
+                                        </tags>
+                                        <assembly>
+                                            <descriptor>assembly.xml</descriptor>
+                                            <user>nydus:nydus:root</user>
+                                        </assembly>
+                                    </build>
+                                </image>
+                            </images>
+                            <verbose>true</verbose>
+                            <removeAll>true</removeAll>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>docker:build</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>docker:push</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>push</goal>
+                                    <goal>remove</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
