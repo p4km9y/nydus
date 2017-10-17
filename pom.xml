@@ -101,7 +101,7 @@
                             </execution>
                             <execution>
                                 <id>docker:push</id>
-                                <phase>deploy</phase>
+                                <phase>install</phase>
                                 <goals>
                                     <goal>push</goal>
                                     <goal>remove</goal>
