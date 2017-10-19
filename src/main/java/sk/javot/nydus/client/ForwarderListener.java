@@ -86,7 +86,6 @@ public class ForwarderListener implements SmartLifecycle {
                     acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 100);
                     try {
                         acceptor.bind(new InetSocketAddress(forwarderPort));
-                        LOG.info("forwarder is listening on {}", forwarderPort);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
